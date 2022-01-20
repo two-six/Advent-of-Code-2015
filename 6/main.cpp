@@ -78,15 +78,6 @@ class Board {
             }
         }
     }
-public:
-
-    Board() {
-        for(int i = 0; i < 1000; ++i) {
-            for(int j = 0; j < 1000; ++j) {
-                board.at(i).at(j) = 0;
-            }
-        }
-    }
 
     unsigned count() {
         unsigned sum(0);
@@ -97,6 +88,16 @@ public:
             }
         }
         return sum;
+    }
+
+public:
+
+    Board() {
+        for(int i = 0; i < 1000; ++i) {
+            for(int j = 0; j < 1000; ++j) {
+                board.at(i).at(j) = 0;
+            }
+        }
     }
 
     unsigned silver() {
