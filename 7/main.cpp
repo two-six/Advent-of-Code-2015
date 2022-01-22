@@ -1,4 +1,3 @@
-#include <bits/types/FILE.h>
 #include <cctype>
 #include <iostream>
 #include <fstream>
@@ -26,21 +25,10 @@ class Board {
     std::map<std::string, u_int16_t> wires;
     std::map<int, std::vector<std::vector<std::string>>> operations;
 
-    void signal_operation(std::string dest, u_int16_t val) {
+    void operation(std::string dest, u_int16_t val) {
         wires.insert(std::make_pair(dest, val));
     }
 
-    void not_operation(std::string dest, u_int16_t val) {
-        wires.insert(std::make_pair(dest, ~val));
-    }
-
-    void and_or_operation(std::string dest, u_int16_t val) {
-        wires.insert(std::make_pair(dest, val));
-    }
-
-    void shift_operation(std::string dest, u_int16_t val) {
-        wires.insert(std::make_pair(dest, val));
-    } 
 public: 
     void insert(const std::smatch sm, const int type) {
         if(type < SIGNAL || type > NOT)
@@ -116,59 +104,36 @@ public:
             operations.at(AND_OR).size();
 
         while(total_size > 0) {
-        // for(int j = 0; j < 10; ++j) {
-            unsigned tmp_size = operations.at(SIGNAL).size();
-            for(auto i = 0; i < tmp_size; ++i) {
-                if(valid(operations.at(SIGNAL).at(i))) {
-                    u_int16_t v = get_value(operations.at(SIGNAL).at(i).at(0));
-                    signal_operation(operations.at(SIGNAL).at(i).at(1), v);
-                    operations.at(SIGNAL).erase(operations.at(SIGNAL).begin()+i);
-                    i--;
-                    tmp_size--;
+            total_size = 0;
+            for(auto &el : operations) {
+                total_size += el.second.size();
+                auto content = &el.second;
+                unsigned tmp_size = content->size();
+                for(auto i = 0; i < tmp_size; ++i) {
+                    if(valid(content->at(i))) {
+                        u_int16_t v1, v2, v;
+                        std::string dest;
+                        if(content->at(i).size() == 2) {
+                            v = el.first == NOT ? ~get_value(content->at(i).at(0)) : get_value(content->at(i).at(0));
+                            dest = content->at(i).at(1);
+                        } else {
+                            v1 = get_value(content->at(i).at(0));
+                            v2 = get_value(content->at(i).at(2));
+                            std::string op = content->at(i).at(1);
+                            if(op.substr(1) == "SHIFT") {
+                                v = op.at(0) == 'R' ? v1 >> v2 : v1 << v2;  
+                            } else {
+                                v = op == "AND" ? v1 & v2 : v1 | v2;
+                            }
+                            dest = content->at(i).at(3);
+                        }
+                        operation(dest, v);
+                        content->erase(content->begin()+i);
+                        i--;
+                        tmp_size--;
+                    }
                 }
             }
-
-            tmp_size = operations.at(NOT).size();
-            for(auto i = 0; i < tmp_size; ++i) {
-                if(valid(operations.at(NOT).at(i))) {
-                    not_operation(operations.at(NOT).at(i).at(1), get_value(operations.at(NOT).at(i).at(0)));
-                    operations.at(NOT).erase(operations.at(NOT).begin()+i);
-                    i--;
-                    tmp_size--;
-                }
-            }
-
-            tmp_size = operations.at(AND_OR).size();
-            for(auto i = 0; i < tmp_size; ++i) {
-                if(valid(operations.at(AND_OR).at(i))) {
-                    u_int16_t v1, v2;
-                    v1 = get_value(operations.at(AND_OR).at(i).at(0));
-                    v2 = get_value(operations.at(AND_OR).at(i).at(2));
-                    and_or_operation(operations.at(AND_OR).at(i).at(3), (operations.at(AND_OR).at(i).at(1) == "AND" ?
-                                                                        v1 & v2 : v1 | v2));
-                    operations.at(AND_OR).erase(operations.at(AND_OR).begin()+i);
-                    i--;
-                    tmp_size--;
-                }
-            }
-
-            tmp_size = operations.at(SHIFT).size();
-            for(auto i = 0; i < tmp_size; ++i) {
-                if(valid(operations.at(SHIFT).at(i))) {
-                    u_int16_t v1, v2;
-                    v1 = get_value(operations.at(SHIFT).at(i).at(0));
-                    v2 = get_value(operations.at(SHIFT).at(i).at(2));
-                    shift_operation(operations.at(SHIFT).at(i).at(3), (operations.at(SHIFT).at(i).at(1) == "RSHIFT" ?
-                                                                    v1 >> v2 : v1 << v2));
-                    operations.at(SHIFT).erase(operations.at(SHIFT).begin()+i);
-                    i--;
-                    tmp_size--;
-                }
-            }
-            total_size = operations.at(SHIFT).size() +
-            operations.at(NOT).size() +
-            operations.at(SIGNAL).size() +
-            operations.at(AND_OR).size();
         }
 
         return wires;
