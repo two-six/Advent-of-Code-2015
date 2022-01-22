@@ -25,10 +25,6 @@ class Board {
     std::map<std::string, u_int16_t> wires;
     std::map<int, std::vector<std::vector<std::string>>> operations;
 
-    void operation(std::string dest, u_int16_t val) {
-        wires.insert(std::make_pair(dest, val));
-    }
-
 public: 
     void insert(const std::smatch sm, const int type) {
         if(type < SIGNAL || type > NOT)
@@ -47,9 +43,8 @@ public:
     }
 
     std::vector<std::vector<std::string>> get_operations(const int &type) {
-        if(operations.count(type) == 0) {
+        if(operations.count(type) == 0) 
             throw "Invalid Element";
-        }
         return operations.at(type);
     }
 
@@ -88,11 +83,10 @@ public:
 
         auto get_value = [&](std::string v) -> u_int16_t {
             std::stringstream ss;
-            if(std::isdigit(v.at(0))) {
+            if(std::isdigit(v.at(0))) 
                 ss << v;
-            } else {
+            else 
                 ss << wires.at(v);
-            }
             u_int16_t val;
             ss >> val;
             return val;
@@ -120,14 +114,13 @@ public:
                             v1 = get_value(content->at(i).at(0));
                             v2 = get_value(content->at(i).at(2));
                             std::string op = content->at(i).at(1);
-                            if(op.substr(1) == "SHIFT") {
+                            if(op.substr(1) == "SHIFT") 
                                 v = op.at(0) == 'R' ? v1 >> v2 : v1 << v2;  
-                            } else {
+                            else 
                                 v = op == "AND" ? v1 & v2 : v1 | v2;
-                            }
                             dest = content->at(i).at(3);
                         }
-                        operation(dest, v);
+                        wires.insert(std::make_pair(dest, v));
                         content->erase(content->begin()+i);
                         i--;
                         tmp_size--;
@@ -160,13 +153,12 @@ int main() {
         };
         while(std::getline(input_file, line)) {
             std::smatch sm;
-            if(std::regex_match(line, sm, signal)) {
+            if(std::regex_match(line, sm, signal)) 
                 insert(sm, SIGNAL);
-            } else if(std::regex_match(line, sm, gate)) {
+            else if(std::regex_match(line, sm, gate)) 
                 insert(sm, (sm[2].str().substr(1) == "SHIFT") ? SHIFT : AND_OR);
-            } else if(std::regex_match(line, sm, not_gate)) {
+            else if(std::regex_match(line, sm, not_gate)) 
                 insert(sm, NOT);
-            }
         } 
     };
 
