@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 unsigned count(std::string const &con, bool gold=false) {
     auto num_len = [&](unsigned const &pos) -> unsigned {
