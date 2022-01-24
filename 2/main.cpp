@@ -1,22 +1,19 @@
 #include <iostream>
 #include <fstream>
 #include <array>
-#include <sstream>
 #include <algorithm>
 #include <utility>
+#include <regex>
 
 std::pair<unsigned long, unsigned long> solution() {
     auto split = [](std::string const &l) -> std::array<int, 3> {
-        std::stringstream ss;
-        std::size_t first = l.find("x");
-        std::size_t second = l.find("x", first+1);
-        ss << l.substr(0, first) +  " "; 
-        ss << l.substr(first+1, second-first-1) + " ";
-        ss << l.substr(second+1);
+        std::regex reg("(\\d+)x(\\d+)x(\\d+)");
+        std::smatch sm;
+        std::regex_match(l, sm, reg);
+        std::cout << sm[0].str() << '\n';
         std::array<int, 3> res;
-        ss >> res.at(0);
-        ss >> res.at(1);
-        ss >> res.at(2);
+        for(int i = 0; i < 3; ++i) 
+            res.at(i) = std::stoi(sm[i+1].str());
         return res;
     };
     std::fstream input_file("input.txt", std::ios::in);
