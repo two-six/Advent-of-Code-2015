@@ -6,9 +6,10 @@
 #include <vector>
 #include <map>
 
-std::pair<std::map<std::string, std::vector<std::string>>, std::string>
-read_from_file(std::string const &file_name) {
-    std::map<std::string, std::vector<std::string>> res1;
+typedef std::map<std::string, std::vector<std::string>> msvs;
+
+std::pair<msvs, std::string> read_from_file(std::string const &file_name) {
+    msvs res1;
     std::string res2;
     std::fstream input_file(file_name, std::ios::in);
     std::string line;
@@ -29,13 +30,12 @@ read_from_file(std::string const &file_name) {
     return std::make_pair(res1, res2);
 }
 
-unsigned silver
-(std::map<std::string, std::vector<std::string>> rep, std::string const &line) {
+unsigned silver(msvs rep, std::string const &line) {
     std::set<std::string> res;
     for(auto const &el : rep) {
         for(auto const &sel : el.second) {
             std::vector<std::string> tmp;
-            auto last(-1);
+            size_t last(-1);
             while(line.find(el.first, last+1) != std::string::npos) {
                 std::string tmps(line);
                 last = line.find(el.first, last+1);
@@ -49,8 +49,12 @@ unsigned silver
     return res.size();
 }
 
+unsigned gold() {
+    return 0;
+}
+
 int main() {
     auto data = read_from_file("input.txt");
     std::cout << "Silver: " << silver(data.first, data.second) << '\n';
-    
+    std::cout << "Gold: " << gold() << '\n'; 
 }
